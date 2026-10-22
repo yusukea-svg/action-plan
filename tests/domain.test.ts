@@ -47,6 +47,18 @@ describe('operations', () => {
     expect(after.monthlyGoals).toHaveLength(0)
     expect(after.weeklyActions).toHaveLength(0)
   })
+  it('まとめて登録すると全件にIDが振られる', () => {
+    const d = sample()
+    const caseId = d.cases[0]!.id
+    const weeks = ['2026-10-19', '2026-10-26', '2026-11-02']
+    const after = ops.upsertMany(
+      d,
+      'weeklyActions',
+      weeks.map((weekStart) => ({ caseId, weekStart, content: `行動 ${weekStart}`, status: 'todo' as const, dueDate: '', memo: '' })),
+    )
+    expect(after.weeklyActions).toHaveLength(d.weeklyActions.length + 3)
+    expect(new Set(after.weeklyActions.map((a) => a.id)).size).toBe(after.weeklyActions.length)
+  })
   it('最終目標は1案件1件', () => {
     let d = sample()
     d = ops.setFinalGoal(d, d.cases[0]!.id, '変更', '')

@@ -375,6 +375,9 @@ function ActionsTab({ caseId }: { caseId: string }) {
   return (
     <>
       <div className="section-actions">
+        <a className="btn" href={href({ name: 'bulk', caseId })}>
+          まとめて入力
+        </a>
         <button type="button" className="btn btn-primary" onClick={() => setEditing('new')}>
           + 行動を追加
         </button>

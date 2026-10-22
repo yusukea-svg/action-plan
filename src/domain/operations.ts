@@ -19,6 +19,11 @@ export function upsert<C extends Collection>(data: AppData, collection: C, draft
   return { data: { ...data, [collection]: next }, record }
 }
 
+/** 複数レコードをまとめて追加・更新する(まとめて入力用) */
+export function upsertMany<C extends Collection>(data: AppData, collection: C, drafts: Draft<C>[]): AppData {
+  return drafts.reduce((d, draft) => upsert(d, collection, draft).data, data)
+}
+
 export function remove(data: AppData, collection: Collection, id: string): AppData {
   if (collection === 'cases') return removeCase(data, id)
   return { ...data, [collection]: (data[collection] as { id: string }[]).filter((r) => r.id !== id) }

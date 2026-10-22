@@ -77,6 +77,9 @@ export const actions = {
     commitData(data)
     return record
   },
+  upsertMany<C extends Collection>(collection: C, drafts: Draft<C>[]) {
+    if (drafts.length) commitData(ops.upsertMany(state.data, collection, drafts))
+  },
   remove(collection: Collection, id: string) {
     commitData(ops.remove(state.data, collection, id))
   },

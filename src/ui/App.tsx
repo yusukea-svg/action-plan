@@ -5,6 +5,7 @@ import { ConfirmProvider } from './components/Confirm'
 import { CaseDetailPage } from './pages/CaseDetailPage'
 import { CaseListPage } from './pages/CaseListPage'
 import { DataPage } from './pages/DataPage'
+import { BulkEntryPage } from './pages/BulkEntryPage'
 import { ThisWeekPage } from './pages/ThisWeekPage'
 import { href, useRoute, type Route } from './router'
 
@@ -13,13 +14,13 @@ export const BACKUP_REMIND_DAYS = 7
 
 const NAV: { route: Route; label: string; icon: string }[] = [
   { route: { name: 'list' }, label: '案件一覧', icon: '▤' },
-  { route: { name: 'week' }, label: '今週の行動', icon: '✓' },
+  { route: { name: 'week' }, label: '週次行動', icon: '✓' },
   { route: { name: 'data' }, label: 'データ管理', icon: '⇅' },
 ]
 
 export function App() {
   const route = useRoute()
-  const section = route.name === 'case' ? 'list' : route.name
+  const section = route.name === 'case' ? 'list' : route.name === 'bulk' ? 'week' : route.name
 
   return (
     <ConfirmProvider>
@@ -41,6 +42,7 @@ export function App() {
         {route.name === 'list' && <CaseListPage />}
         {route.name === 'case' && <CaseDetailPage key={route.id} id={route.id} tab={route.tab} />}
         {route.name === 'week' && <ThisWeekPage />}
+        {route.name === 'bulk' && <BulkEntryPage key={route.caseId ?? ''} initialCaseId={route.caseId} />}
         {route.name === 'data' && <DataPage />}
       </main>
       <nav className="bottom-nav">

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { addDays, currentWeekStart, formatMd, formatWeekRange, isDateStr, weekEnd, weekStartOf } from '../../domain/dates'
-import type { ActionStatus, WeeklyAction } from '../../domain/types'
+import { ACTION_STATUS_LABELS, type ActionStatus, type WeeklyAction } from '../../domain/types'
 import { actions, useAppData } from '../../store/store'
 import { ACTION_STATUS_OPTIONS } from './Badges'
 import { useConfirm } from './Confirm'
@@ -37,6 +37,28 @@ export function ActionItem({
         options={ACTION_STATUS_OPTIONS}
         onChange={(s) => actions.setActionStatus(action.id, s)}
       />
+    </li>
+  )
+}
+
+const NEXT_STATUS: Record<ActionStatus, ActionStatus> = { todo: 'doing', doing: 'done', done: 'todo' }
+
+/** 4週間表示用の小さな行動カード。状態はタップするたびに 未着手→進行中→完了 と切り替わる */
+export function ActionChip({ action, onEdit }: { action: WeeklyAction; onEdit: () => void }) {
+  return (
+    <li className={`action-chip status-${action.status}`}>
+      <button type="button" className="action-chip-main" onClick={onEdit}>
+        <span className="action-content">{action.content}</span>
+        {action.dueDate && <span className="action-chip-due">期限 {formatMd(action.dueDate)}</span>}
+      </button>
+      <button
+        type="button"
+        className={`status-pill pill-${action.status}`}
+        onClick={() => actions.setActionStatus(action.id, NEXT_STATUS[action.status])}
+        aria-label={`状態: ${ACTION_STATUS_LABELS[action.status]}(タップで変更)`}
+      >
+        {ACTION_STATUS_LABELS[action.status]}
+      </button>
     </li>
   )
 }

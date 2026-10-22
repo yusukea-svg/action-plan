@@ -264,6 +264,7 @@ textarea {
 .section-actions {
   display: flex;
   justify-content: flex-end;
+  gap: 8px;
   margin-bottom: 16px;
 }
 .danger-zone {
@@ -833,6 +834,249 @@ a.case-row:hover {
   line-height: 1.8;
 }
 
+/* ---------- 週次行動:表示切替・複数週一覧 ---------- */
+
+.header-buttons {
+  display: flex;
+  gap: 8px;
+}
+.view-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.view-controls .checkbox {
+  margin-bottom: 0;
+}
+/* 4週表示のときは横幅を広げる */
+.app-main:has(.page-wide) {
+  max-width: 1280px;
+}
+
+.mw-grid {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  /* hidden だとスクロール領域扱いになり、見出しの sticky がずれるため clip を使う */
+  overflow: clip;
+}
+.mw-row {
+  display: grid;
+  grid-template-columns: 160px repeat(var(--weeks), minmax(0, 1fr));
+  border-top: 1px solid var(--border);
+}
+.mw-row:first-child {
+  border-top: none;
+}
+.mw-head {
+  background: var(--bg-sub);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--muted);
+  position: sticky;
+  top: var(--header-h);
+  z-index: 1;
+}
+.mw-head .mw-cell,
+.mw-head .mw-case {
+  padding-top: 10px;
+  padding-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.mw-case {
+  padding: 12px 16px;
+  font-weight: 600;
+  word-break: break-word;
+}
+.mw-case a {
+  color: var(--text);
+}
+.mw-cell {
+  padding: 8px;
+  border-left: 1px solid var(--border);
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.mw-cell.is-current {
+  background: #f7faff;
+}
+.mw-head .mw-cell.is-current {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.mw-cell-label {
+  display: none;
+}
+.mw-add {
+  border: 1px dashed var(--border);
+  background: none;
+  border-radius: 6px;
+  color: var(--muted);
+  font-size: 0.8rem;
+  min-height: 32px;
+  cursor: pointer;
+}
+.mw-add:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--bg);
+}
+
+.chip-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.action-chip {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 4px 4px 4px 0;
+}
+.action-chip-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  border: none;
+  background: none;
+  padding: 4px 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  line-height: 1.45;
+}
+.action-chip-due {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+.action-chip.status-done {
+  background: var(--bg-sub);
+}
+.status-pill {
+  flex-shrink: 0;
+  border: none;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0 10px;
+  min-height: 30px;
+  min-width: 52px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.pill-todo {
+  background: #eef0f3;
+  color: #4b5565;
+}
+.pill-doing {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.pill-done {
+  background: var(--ok-soft);
+  color: var(--done);
+}
+
+/* ---------- まとめて入力 ---------- */
+
+.link-plain {
+  border: none;
+  background: none;
+  color: var(--accent);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.9rem;
+}
+.bulk-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.bulk-settings-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 16px;
+}
+.bulk-week.is-current {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+.bulk-existing {
+  list-style: none;
+  margin: 0 0 12px;
+  padding: 8px 12px;
+  background: var(--bg-sub);
+  border-radius: 8px;
+  font-size: 0.88rem;
+}
+.bulk-existing li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 0;
+}
+.bulk-existing-text {
+  flex: 1;
+  min-width: 0;
+}
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.dot-todo {
+  background: #a0a8b8;
+}
+.dot-doing {
+  background: var(--accent);
+}
+.dot-done {
+  background: var(--done);
+}
+.bulk-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.bulk-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 170px var(--tap);
+  gap: 8px;
+  align-items: center;
+}
+.bulk-footer {
+  position: sticky;
+  bottom: 0;
+  margin: 16px -8px 0;
+  padding: 12px 8px;
+  background: linear-gradient(to bottom, rgba(246, 247, 249, 0), var(--bg-sub) 30%);
+}
+.bulk-footer-inner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
+}
+
 /* ---------- スマホ ---------- */
 
 @media (max-width: 720px) {
@@ -968,5 +1212,86 @@ a.case-row:hover {
   .banner {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .page-header {
+    flex-wrap: wrap;
+  }
+  .header-buttons {
+    width: 100%;
+  }
+  .header-buttons .btn {
+    flex: 1;
+  }
+  .mw-row.mw-head {
+    display: none;
+  }
+  .mw-grid {
+    background: none;
+    border: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .mw-row {
+    display: block;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .mw-row:first-child {
+    border-top: 1px solid var(--border);
+  }
+  .mw-case {
+    border-bottom: 1px solid var(--border);
+  }
+  .mw-cell {
+    border-left: none;
+    border-top: 1px solid var(--border);
+    padding: 10px 12px;
+  }
+  .mw-case + .mw-cell {
+    border-top: none;
+  }
+  .mw-cell-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--muted);
+  }
+  .mw-add {
+    min-height: 40px;
+  }
+  .status-pill {
+    min-height: 36px;
+  }
+  .bulk-settings-row {
+    grid-template-columns: 1fr;
+  }
+  .bulk-settings-row .segmented {
+    width: 100%;
+  }
+  .bulk-row {
+    grid-template-columns: minmax(0, 1fr) var(--tap);
+    grid-template-areas:
+      'content remove'
+      'due remove';
+    padding-bottom: 8px;
+    border-bottom: 1px dashed var(--border);
+  }
+  .bulk-row > :nth-child(1) {
+    grid-area: content;
+  }
+  .bulk-row > :nth-child(2) {
+    grid-area: due;
+  }
+  .bulk-row > :nth-child(3) {
+    grid-area: remove;
+  }
+  .bulk-footer {
+    bottom: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom));
   }
 }

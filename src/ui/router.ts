@@ -8,6 +8,8 @@ export type Route =
   | { name: 'list' }
   | { name: 'case'; id: string; tab: CaseTab }
   | { name: 'week' }
+  /** まとめて入力。caseId があればその案件を選択した状態で開く */
+  | { name: 'bulk'; caseId?: string }
   | { name: 'data' }
 
 export type CaseTab = 'info' | 'goals' | 'actions'
@@ -20,6 +22,7 @@ export function parseRoute(hash: string): Route {
     return { name: 'case', id: decodeURIComponent(parts[1]), tab }
   }
   if (parts[0] === 'week') return { name: 'week' }
+  if (parts[0] === 'bulk') return { name: 'bulk', caseId: parts[1] ? decodeURIComponent(parts[1]) : undefined }
   if (parts[0] === 'data') return { name: 'data' }
   return { name: 'list' }
 }
@@ -30,6 +33,8 @@ export function href(route: Route): string {
       return `#/cases/${encodeURIComponent(route.id)}/${route.tab}`
     case 'week':
       return '#/week'
+    case 'bulk':
+      return route.caseId ? `#/bulk/${encodeURIComponent(route.caseId)}` : '#/bulk'
     case 'data':
       return '#/data'
     default:
