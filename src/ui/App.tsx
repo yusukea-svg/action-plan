@@ -2,6 +2,7 @@ import { daysBetween } from '../domain/dates'
 import { isEmpty } from '../domain/operations'
 import { useAppData, useLoadError, useLocalMeta } from '../store/store'
 import { ConfirmProvider } from './components/Confirm'
+import { DeadlineAlert } from './components/DeadlineAlert'
 import { CaseDetailPage } from './pages/CaseDetailPage'
 import { CaseListPage } from './pages/CaseListPage'
 import { DataPage } from './pages/DataPage'
@@ -39,6 +40,7 @@ export function App() {
       <main className="app-main">
         <LoadErrorBanner />
         <BackupBanner hidden={route.name === 'data'} />
+        <DeadlineAlert />
         {route.name === 'list' && <CaseListPage />}
         {route.name === 'case' && <CaseDetailPage key={route.id} id={route.id} tab={route.tab} />}
         {route.name === 'week' && <ThisWeekPage />}

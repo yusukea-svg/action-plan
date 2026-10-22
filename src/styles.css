@@ -1047,9 +1047,65 @@ textarea:focus,
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 16px;
 }
-.bulk-week.is-current {
+.bulk-selected-count {
+  font-weight: 400;
+  font-size: 0.82rem;
+  margin-left: auto;
+}
+.case-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.case-pick {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: var(--tap);
+  padding: 0 14px 0 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--bg);
+  cursor: pointer;
+  user-select: none;
+}
+.case-pick:hover {
+  background: var(--bg-sub);
+}
+.case-pick.is-selected {
   border-color: var(--accent);
-  box-shadow: 0 0 0 1px var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 600;
+}
+.case-pick input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent);
+}
+.bulk-case-header {
+  margin-bottom: 4px;
+}
+.bulk-case-header h2 {
+  font-size: 1.1rem;
+}
+.bulk-week {
+  padding: 12px 0;
+  border-top: 1px solid var(--border);
+}
+.bulk-week:last-child {
+  padding-bottom: 0;
+}
+.bulk-week-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.bulk-week.is-current .bulk-week-title {
+  color: var(--accent);
 }
 .bulk-existing {
   list-style: none;
@@ -1112,6 +1168,122 @@ textarea:focus,
   border-radius: var(--radius);
   padding: 12px 16px;
   box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
+}
+
+/* ---------- 期限が近いもの ---------- */
+
+.deadline-alert {
+  background: var(--bg);
+  border: 1px solid var(--warn-border);
+  border-left: 4px solid #e0a800;
+  border-radius: var(--radius);
+  margin-bottom: 16px;
+  overflow: clip;
+}
+.deadline-alert.has-overdue {
+  border-color: #f2c3bf;
+  border-left-color: var(--danger);
+}
+.deadline-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: var(--tap);
+  padding: 8px 16px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  text-align: left;
+}
+.deadline-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #e0a800;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.8rem;
+  flex-shrink: 0;
+}
+.has-overdue .deadline-icon {
+  background: var(--danger);
+}
+.deadline-title {
+  flex: 1;
+}
+.deadline-overdue-count {
+  color: var(--danger);
+  font-weight: 600;
+  margin-left: 4px;
+}
+.deadline-toggle {
+  color: var(--accent);
+  font-size: 0.85rem;
+}
+.deadline-list {
+  list-style: none;
+  margin: 0;
+  padding: 0 8px 8px;
+}
+.deadline-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px;
+  border-top: 1px solid var(--border);
+}
+.deadline-badge {
+  flex-shrink: 0;
+  min-width: 64px;
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: var(--warn-soft);
+  color: #8a6100;
+}
+.deadline-badge.urgent {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+.deadline-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: var(--text);
+  padding: 4px 0;
+}
+.deadline-body:hover .deadline-text {
+  color: var(--accent);
+}
+.deadline-meta {
+  font-size: 0.78rem;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.deadline-kind {
+  font-size: 0.7rem;
+  font-weight: 600;
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-radius: 4px;
+  padding: 0 6px;
+}
+.deadline-text {
+  font-weight: 500;
+  word-break: break-word;
+}
+.deadline-more {
+  margin: 0 16px 10px;
 }
 
 /* ---------- スマホ ---------- */
