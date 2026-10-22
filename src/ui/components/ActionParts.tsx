@@ -25,6 +25,7 @@ export function ActionItem({
         {caseName && <span className="action-case">{caseName}</span>}
         <span className="action-content">{action.content}</span>
         <span className="action-meta">
+          {action.whom && <span className="whom">誰に:{action.whom}</span>}
           {showWeek && <span>{formatWeekRange(action.weekStart)}</span>}
           {action.dueDate && <span className="due">期限 {formatMd(action.dueDate)}</span>}
           {action.memo && <span className="action-memo">{action.memo}</span>}
@@ -49,6 +50,7 @@ export function ActionChip({ action, onEdit }: { action: WeeklyAction; onEdit: (
     <li className={`action-chip status-${action.status}`}>
       <button type="button" className="action-chip-main" onClick={onEdit}>
         <span className="action-content">{action.content}</span>
+        {action.whom && <span className="action-chip-due whom">誰に:{action.whom}</span>}
         {action.dueDate && <span className="action-chip-due">期限 {formatMd(action.dueDate)}</span>}
       </button>
       <button
@@ -60,6 +62,48 @@ export function ActionChip({ action, onEdit }: { action: WeeklyAction; onEdit: (
         {ACTION_STATUS_LABELS[action.status]}
       </button>
     </li>
+  )
+}
+
+/**
+ * 「誰に」の入力欄。自由入力で、その案件の関係者を候補として出す。
+ * 候補は「氏名(役職)」ではなく氏名のみを入れる。
+ */
+export function WhomInput({
+  caseId,
+  value,
+  onChange,
+  ariaLabel,
+  placeholder,
+}: {
+  caseId: string
+  value: string
+  onChange: (v: string) => void
+  ariaLabel?: string
+  placeholder?: string
+}) {
+  const data = useAppData()
+  const listId = `whom-${caseId || 'none'}`
+  const contacts = data.contacts.filter((c) => c.caseId === caseId)
+  return (
+    <>
+      <input
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        list={contacts.length ? listId : undefined}
+        aria-label={ariaLabel}
+        placeholder={placeholder ?? (contacts.length ? '関係者から選ぶか入力' : '例:〇〇部長')}
+      />
+      {contacts.length > 0 && (
+        <datalist id={listId}>
+          {contacts.map((c) => (
+            <option key={c.id} value={c.name}>
+              {c.title}
+            </option>
+          ))}
+        </datalist>
+      )}
+    </>
   )
 }
 
@@ -81,6 +125,7 @@ export function ActionFormModal({
     caseId: action?.caseId ?? caseId ?? '',
     weekStart: action?.weekStart ?? defaultWeek ?? currentWeekStart(),
     content: action?.content ?? '',
+    whom: action?.whom ?? '',
     status: action?.status ?? ('todo' as ActionStatus),
     dueDate: action?.dueDate ?? '',
     memo: action?.memo ?? '',
@@ -99,7 +144,7 @@ export function ActionFormModal({
   const submit = () => {
     if (!form.caseId) return setError('案件を選択してください')
     if (!form.content.trim()) return setError('行動内容を入力してください')
-    actions.upsert('weeklyActions', { ...form, id: action?.id, content: form.content.trim(), memo: form.memo.trim() })
+    actions.upsert('weeklyActions', { ...form, id: action?.id, content: form.content.trim(), whom: form.whom.trim(), memo: form.memo.trim() })
     onClose()
   }
 
@@ -139,6 +184,9 @@ export function ActionFormModal({
       </Field>
       <Field label="行動内容" required>
         <textarea rows={2} value={form.content} onChange={(e) => set('content', e.target.value)} data-autofocus={!action || undefined} />
+      </Field>
+      <Field label="誰に" hint="その案件の関係者が候補に出ます(自由入力も可)">
+        <WhomInput caseId={form.caseId} value={form.whom} onChange={(v) => set('whom', v)} />
       </Field>
       <Field label="状態">
         <Segmented value={form.status} options={ACTION_STATUS_OPTIONS} onChange={(v) => set('status', v)} />

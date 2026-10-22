@@ -2,7 +2,7 @@
  * データ構造の定義。
  * 項目追加・形式変更時は SCHEMA_VERSION を上げ、migrate.ts に移行処理を追加する。
  */
-export const SCHEMA_VERSION = 1
+export const SCHEMA_VERSION = 2
 
 export type CaseStatus = 'active' | 'onhold' | 'done'
 export type ActionStatus = 'todo' | 'doing' | 'done'
@@ -15,6 +15,7 @@ export interface BaseRecord {
 }
 
 export interface Case extends BaseRecord {
+  /** 案件名(画面上の表記は「案件名」。v1 で会社名として作った項目をそのまま使っている) */
   companyName: string
   status: CaseStatus
   memo: string
@@ -50,6 +51,8 @@ export interface WeeklyAction extends BaseRecord {
   /** 週の開始日(月曜日) YYYY-MM-DD */
   weekStart: string
   content: string
+  /** 誰に(相手先の担当者など。v2 で追加) */
+  whom: string
   status: ActionStatus
   /** 任意の期限日 YYYY-MM-DD(未設定は空文字) */
   dueDate: string

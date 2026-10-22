@@ -3,6 +3,7 @@ import { addDays, currentWeekStart, formatMd, formatWeekRange, isDateStr, weekEn
 import { sortActions } from '../../domain/operations'
 import { ACTION_STATUS_LABELS } from '../../domain/types'
 import { actions, useAppData } from '../../store/store'
+import { WhomInput } from '../components/ActionParts'
 import { useConfirm } from '../components/Confirm'
 import { Empty, Field, Segmented } from '../components/Fields'
 import { href, navigate } from '../router'
@@ -10,13 +11,14 @@ import { href, navigate } from '../router'
 interface Row {
   key: number
   content: string
+  whom: string
   dueDate: string
 }
 
 type WeekCount = '2' | '4' | '6' | '8'
 let rowSeq = 0
 const TRAILING = -1
-const emptyRow = (): Row => ({ key: ++rowSeq, content: '', dueDate: '' })
+const emptyRow = (): Row => ({ key: ++rowSeq, content: '', whom: '', dueDate: '' })
 
 /**
  * 1つの案件について、複数週の行動を1画面でまとめて登録する。
@@ -44,7 +46,7 @@ export function BulkEntryPage({ initialCaseId }: { initialCaseId?: string }) {
   const hiddenPending = filled.length - pending.length
 
   // 末尾に必ず空行(key = TRAILING)が1つある状態で表示する
-  const rowsOf = (week: string): Row[] => [...(rows[week] ?? []), { key: TRAILING, content: '', dueDate: '' }]
+  const rowsOf = (week: string): Row[] => [...(rows[week] ?? []), { key: TRAILING, content: '', whom: '', dueDate: '' }]
 
   const updateRow = (week: string, row: Row, patch: Partial<Row>) => {
     setMessage('')
@@ -74,6 +76,7 @@ export function BulkEntryPage({ initialCaseId }: { initialCaseId?: string }) {
         caseId,
         weekStart: r.week,
         content: r.content.trim(),
+        whom: r.whom.trim(),
         status: 'todo' as const,
         dueDate: r.dueDate && r.dueDate >= r.week && r.dueDate <= weekEnd(r.week) ? r.dueDate : '',
         memo: '',
@@ -141,7 +144,7 @@ export function BulkEntryPage({ initialCaseId }: { initialCaseId?: string }) {
             />
           </Field>
         </div>
-        <p className="field-hint">各週の欄に入力すると、次の入力欄が自動で増えます。期限日は任意です。状態は「未着手」で登録されます。</p>
+        <p className="field-hint">各週の欄に入力すると、次の入力欄が自動で増えます。「誰に」と期限日は任意です。状態は「未着手」で登録されます。</p>
         {data.cases.length === 0 && (
           <p className="form-error">
             先に<a href={href({ name: 'list' })}>案件一覧</a>で案件を登録してください。
@@ -164,7 +167,10 @@ export function BulkEntryPage({ initialCaseId }: { initialCaseId?: string }) {
                 {existing.map((a) => (
                   <li key={a.id}>
                     <span className={`status-dot dot-${a.status}`} aria-hidden />
-                    <span className="bulk-existing-text">{a.content}</span>
+                    <span className="bulk-existing-text">
+                      {a.content}
+                      {a.whom && <span className="muted">(誰に:{a.whom})</span>}
+                    </span>
                     <span className="muted">
                       {ACTION_STATUS_LABELS[a.status]}
                       {a.dueDate && ` ・期限 ${formatMd(a.dueDate)}`}
@@ -185,6 +191,15 @@ export function BulkEntryPage({ initialCaseId }: { initialCaseId?: string }) {
                       onChange={(e) => updateRow(week, row, { content: e.target.value })}
                       aria-label={`${formatWeekRange(week)} の行動内容`}
                     />
+                    <div className="bulk-whom">
+                      <WhomInput
+                        caseId={caseId}
+                        value={row.whom}
+                        onChange={(v) => updateRow(week, row, { whom: v })}
+                        ariaLabel="誰に"
+                        placeholder="誰に"
+                      />
+                    </div>
                     <input
                       type="date"
                       className="bulk-due"

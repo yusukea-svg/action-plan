@@ -18,11 +18,18 @@ import {
  * 旧バージョンのデータを最新形式へ移行する。
  * バージョン N → N+1 の変換を MIGRATIONS[N] に追加していく。
  *
- * 例(将来 v2 で案件に「業種」を追加する場合):
- *   1: (d) => ({ ...d, version: 2, cases: d.cases.map((c) => ({ ...c, industry: '' })) }),
+ * 例(将来 v3 で案件に「業種」を追加する場合):
+ *   2: (d) => ({ ...d, version: 3, cases: d.cases.map((c) => ({ ...c, industry: "" })) }),
  */
 type RawData = Record<string, unknown> & { version: number }
-const MIGRATIONS: Record<number, (d: RawData) => RawData> = {}
+const MIGRATIONS: Record<number, (d: RawData) => RawData> = {
+  // v2: 週次行動に「誰に」を追加
+  1: (d) => ({
+    ...d,
+    version: 2,
+    weeklyActions: (Array.isArray(d.weeklyActions) ? d.weeklyActions : []).map((a: Record<string, unknown>) => ({ whom: '', ...a })),
+  }),
+}
 
 export class UnsupportedVersionError extends Error {
   constructor(version: number) {
@@ -107,6 +114,7 @@ export function sanitizeWeeklyAction(r: Record<string, unknown>): WeeklyAction {
     caseId: str(r.caseId),
     weekStart: date(r.weekStart),
     content: str(r.content),
+    whom: str(r.whom),
     status: oneOf(r.status, ACTION_STATUSES, 'todo'),
     dueDate: date(r.dueDate),
     memo: str(r.memo),

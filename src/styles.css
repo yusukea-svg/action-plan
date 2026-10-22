@@ -581,7 +581,7 @@ textarea:focus,
 }
 .case-row {
   display: grid;
-  grid-template-columns: 1fr 100px 140px 100px;
+  grid-template-columns: minmax(0, 1fr) 100px 140px 100px var(--tap);
   align-items: center;
   gap: 12px;
   padding: 14px 20px;
@@ -590,8 +590,45 @@ textarea:focus,
   color: var(--text);
   text-decoration: none;
 }
-a.case-row:hover {
+.case-row.is-link {
+  cursor: pointer;
+}
+.case-row.is-link:hover {
   background: var(--bg-sub);
+}
+.case-name a {
+  color: var(--text);
+  text-decoration: none;
+}
+.case-row.is-link:hover .case-name a {
+  color: var(--accent);
+}
+.case-delete {
+  display: flex;
+  justify-content: center;
+}
+.icon-btn-danger:hover {
+  color: var(--danger);
+  background: var(--danger-soft);
+}
+.name-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.name-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--tap);
+  gap: 4px 8px;
+  align-items: center;
+}
+.name-dup {
+  grid-column: 1 / -1;
+  color: #8a6100;
+}
+.action-meta .whom,
+.action-chip-due.whom {
+  color: var(--text);
 }
 .case-row-head {
   border-top: none;
@@ -1054,7 +1091,7 @@ a.case-row:hover {
 }
 .bulk-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 170px var(--tap);
+  grid-template-columns: minmax(0, 1fr) 170px 170px var(--tap);
   gap: 8px;
   align-items: center;
 }
@@ -1140,12 +1177,15 @@ a.case-row:hover {
     display: none;
   }
   .case-row {
-    grid-template-columns: 1fr auto;
+    grid-template-columns: minmax(0, 1fr) auto var(--tap);
     grid-template-areas:
-      'name status'
-      'deadline week';
+      'name status del'
+      'deadline week del';
     gap: 4px 12px;
-    padding: 14px 16px;
+    padding: 12px 8px 12px 16px;
+  }
+  .case-row > :nth-child(5) {
+    grid-area: del;
   }
   .case-row > :nth-child(1) {
     grid-area: name;
@@ -1275,10 +1315,10 @@ a.case-row:hover {
     width: 100%;
   }
   .bulk-row {
-    grid-template-columns: minmax(0, 1fr) var(--tap);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) var(--tap);
     grid-template-areas:
-      'content remove'
-      'due remove';
+      'content content remove'
+      'whom due remove';
     padding-bottom: 8px;
     border-bottom: 1px dashed var(--border);
   }
@@ -1286,9 +1326,12 @@ a.case-row:hover {
     grid-area: content;
   }
   .bulk-row > :nth-child(2) {
-    grid-area: due;
+    grid-area: whom;
   }
   .bulk-row > :nth-child(3) {
+    grid-area: due;
+  }
+  .bulk-row > :nth-child(4) {
     grid-area: remove;
   }
   .bulk-footer {

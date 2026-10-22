@@ -29,6 +29,8 @@ import {
 interface Column {
   key: string
   header: string
+  /** 読み込み時に受け付ける旧見出し(例: v1 の「会社名」) */
+  aliases?: string[]
   /** 書き出し時の変換 */
   out?: (v: unknown) => string | number
   /** 読み込み時の変換 */
@@ -49,7 +51,7 @@ const monthCol = { in: (v: unknown) => cellDate(v).slice(0, 7) }
 
 const ID: Column = { key: 'id', header: 'ID', width: 38 }
 const CASE_ID: Column = { key: 'caseId', header: '案件ID', width: 38 }
-const COMPANY: Column = { key: '__company', header: '会社名', width: 24 }
+const COMPANY: Column = { key: '__company', header: '案件名', aliases: ['会社名'], width: 24 }
 const UPDATED: Column = {
   key: 'updatedAt',
   header: '更新日時',
@@ -64,7 +66,7 @@ const UPDATED: Column = {
 export const COLUMNS: Record<Collection, Column[]> = {
   cases: [
     ID,
-    { key: 'companyName', header: '会社名', width: 24 },
+    { key: 'companyName', header: '案件名', aliases: ['会社名'], width: 24 },
     { key: 'status', header: 'ステータス', width: 10, ...labelMap(CASE_STATUS_LABELS) },
     { key: 'memo', header: 'メモ', width: 40 },
     UPDATED,
@@ -102,6 +104,7 @@ export const COLUMNS: Record<Collection, Column[]> = {
     COMPANY,
     { key: 'weekStart', header: '週(開始日)', width: 12, ...dateCol },
     { key: 'content', header: '行動内容', width: 40 },
+    { key: 'whom', header: '誰に', width: 16 },
     { key: 'status', header: '状態', width: 10, ...labelMap(ACTION_STATUS_LABELS) },
     { key: 'dueDate', header: '期限日', width: 12, ...dateCol },
     { key: 'memo', header: 'メモ', width: 30 },
@@ -162,14 +165,22 @@ function buildSummarySheet(data: AppData): XLSX.WorkSheet {
     const weeks = [...new Set(acts.map((a) => a.weekStart))].sort()
     for (const w of weeks) {
       for (const a of sortActions(acts.filter((x) => x.weekStart === w))) {
-        aoa.push(['週次行動', formatWeekRange(w), a.content, ACTION_STATUS_LABELS[a.status], a.dueDate ? `期限 ${formatYmd(a.dueDate)}` : '', a.memo])
+        aoa.push([
+          '週次行動',
+          formatWeekRange(w),
+          a.content,
+          a.whom ? `誰に:${a.whom}` : '',
+          ACTION_STATUS_LABELS[a.status],
+          a.dueDate ? `期限 ${formatYmd(a.dueDate)}` : '',
+          a.memo,
+        ])
       }
     }
     aoa.push([])
   }
   if (aoa.length === 0) aoa.push(['案件はありません'])
   const ws = XLSX.utils.aoa_to_sheet(aoa)
-  ws['!cols'] = [{ wch: 22 }, { wch: 24 }, { wch: 40 }, { wch: 10 }, { wch: 14 }, { wch: 30 }]
+  ws['!cols'] = [{ wch: 22 }, { wch: 24 }, { wch: 40 }, { wch: 16 }, { wch: 10 }, { wch: 14 }, { wch: 30 }]
   return ws
 }
 
@@ -204,7 +215,7 @@ export function readWorkbook(buf: ArrayBuffer): AppData {
 
 /**
  * Excel上で手入力された行への配慮:
- * IDが空の案件にはIDを振り、案件IDが空の子レコードは会社名で案件と紐づける。
+ * IDが空の案件にはIDを振り、案件IDが空の子レコードは案件名で案件と紐づける。
  */
 function linkByCompanyName(raw: Record<string, unknown>) {
   const cases = raw.cases as Record<string, unknown>[]
@@ -237,14 +248,20 @@ function sheetToRecords(ws: XLSX.WorkSheet, columns: Column[]): Record<string, u
       const r: Record<string, unknown> = {}
       for (const c of columns) {
         if (c.key === '__company') continue
-        const v = row[c.header]
+        const v = cellOf(row, c)
         r[c.key] = c.in ? c.in(v) : cellText(v)
       }
-      // 案件ID が空でも会社名が書かれていれば、後で案件と紐づける
-      r.__company = cellText(row[COMPANY.header])
+      // 案件ID が空でも案件名が書かれていれば、後で案件と紐づける
+      r.__company = cellText(cellOf(row, COMPANY))
       return r
     })
     .filter((r) => Object.entries(r).some(([k, v]) => k !== '__company' && v !== '' && v != null))
+}
+
+/** 見出しで列を探す(旧見出しも可) */
+function cellOf(row: Record<string, unknown>, c: Column): unknown {
+  for (const h of [c.header, ...(c.aliases ?? [])]) if (h in row) return row[h]
+  return ''
 }
 
 function cellText(v: unknown): string {

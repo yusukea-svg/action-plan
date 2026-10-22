@@ -99,7 +99,7 @@ function InfoTab({ c }: { c: Case }) {
           </button>
         </div>
         <dl className="dl">
-          <dt>会社名</dt>
+          <dt>案件名</dt>
           <dd>{c.companyName}</dd>
           <dt>ステータス</dt>
           <dd>

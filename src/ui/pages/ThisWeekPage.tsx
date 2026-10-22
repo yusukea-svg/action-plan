@@ -215,7 +215,7 @@ function OneWeekList({
 }
 
 /**
- * 複数週表示:行=会社、列=週 の一覧表(スマホでは会社ごとのカードに週を縦に並べる)。
+ * 複数週表示:行=案件、列=週 の一覧表(スマホでは案件ごとのカードに週を縦に並べる)。
  * 進行中・保留の案件は行動がなくても表示し、空欄から直接追加できるようにする。
  */
 function MultiWeekGrid({
@@ -255,7 +255,7 @@ function MultiWeekGrid({
   return (
     <div className="mw-grid" style={cols}>
       <div className="mw-row mw-head">
-        <div className="mw-case">会社名</div>
+        <div className="mw-case">案件名</div>
         {weeks.map((w) => (
           <div key={w} className={`mw-cell ${w === thisWeek ? 'is-current' : ''}`}>
             {formatWeekRange(w)}

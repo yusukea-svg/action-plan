@@ -16,6 +16,7 @@ function sample(): AppData {
     caseId: c.record.id,
     weekStart: '2026-10-19',
     content: '訪問',
+    whom: '',
     status: 'todo',
     dueDate: '2026-10-21',
     memo: '',
@@ -54,7 +55,7 @@ describe('operations', () => {
     const after = ops.upsertMany(
       d,
       'weeklyActions',
-      weeks.map((weekStart) => ({ caseId, weekStart, content: `行動 ${weekStart}`, status: 'todo' as const, dueDate: '', memo: '' })),
+      weeks.map((weekStart) => ({ caseId, weekStart, content: `行動 ${weekStart}`, whom: '', status: 'todo' as const, dueDate: '', memo: '' })),
     )
     expect(after.weeklyActions).toHaveLength(d.weeklyActions.length + 3)
     expect(new Set(after.weeklyActions.map((a) => a.id)).size).toBe(after.weeklyActions.length)
@@ -79,6 +80,15 @@ describe('migrate', () => {
     expect(d.cases[0]!.status).toBe('active')
     expect(d.monthlyGoals[0]!.progress).toBe(100)
     expect(d.weeklyActions).toHaveLength(0)
+  })
+  it('v1 のデータは v2 に移行され「誰に」が空で補われる', () => {
+    const d = migrate({
+      version: 1,
+      cases: [{ id: 'c1', companyName: 'A', status: 'active', memo: '', updatedAt: '2026-10-01T00:00:00.000Z' }],
+      weeklyActions: [{ id: 'a1', caseId: 'c1', weekStart: '2026-10-19', content: '訪問', status: 'todo', dueDate: '', memo: '' }],
+    })
+    expect(d.version).toBe(2)
+    expect(d.weeklyActions[0]!.whom).toBe('')
   })
   it('新しすぎる形式は拒否', () => {
     expect(() => migrate({ version: SCHEMA_VERSION + 1, cases: [] })).toThrow(UnsupportedVersionError)

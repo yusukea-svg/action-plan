@@ -16,11 +16,12 @@ function sample(): AppData {
       caseId: c.record.id,
       weekStart: '2026-10-19',
       content: '訪問',
+      whom: '山田部長',
       status: 'doing',
       dueDate: '2026-10-21',
       memo: 'メモ',
     }).data
-    d = ops.upsert(d, 'weeklyActions', { caseId: c.record.id, weekStart: '2026-10-26', content: '見積', status: 'todo', dueDate: '', memo: '' }).data
+    d = ops.upsert(d, 'weeklyActions', { caseId: c.record.id, weekStart: '2026-10-26', content: '見積', whom: '', status: 'todo', dueDate: '', memo: '' }).data
   }
   return d
 }
@@ -46,13 +47,33 @@ describe('excel', () => {
     // 週(開始日)を Excel の日付シリアル値に置き換える(2026-10-19 = 46314)
     ws['D2'] = { t: 'n', v: 46314, z: 'yyyy/m/d' }
     // ID・案件IDなしで会社名だけ書いた行を追加
-    XLSX.utils.sheet_add_aoa(ws, [['', '', 'B商事', '2026/10/19', '電話', '未着手', '', '', '']], { origin: -1 })
+    XLSX.utils.sheet_add_aoa(ws, [['', '', 'B商事', '2026/10/19', '電話', '', '未着手', '', '', '']], { origin: -1 })
     const back = roundTrip(wb)
     expect(back.weeklyActions.find((a) => a.id === d.weeklyActions[0]!.id)?.weekStart).toBe('2026-10-19')
     const added = back.weeklyActions.find((a) => a.content === '電話')
     expect(added?.caseId).toBe(d.cases.find((c) => c.companyName === 'B商事')!.id)
     expect(added?.weekStart).toBe('2026-10-19')
     expect(added?.id).toMatch(/^[0-9a-f-]{36}$/)
+  })
+
+  it('v1形式(見出しが「会社名」、「誰に」列なし)のファイルも読める', () => {
+    const wb = XLSX.utils.book_new()
+    const add = (name: string, aoa: unknown[][]) => XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(aoa), name)
+    add('案件', [
+      ['ID', '会社名', 'ステータス', 'メモ', '更新日時'],
+      ['c1', '旧株式会社', '保留', '', '2026-10-01T00:00:00.000Z'],
+    ])
+    add('週次行動', [
+      ['ID', '案件ID', '会社名', '週(開始日)', '行動内容', '状態', '期限日', 'メモ', '更新日時'],
+      ['a1', '', '旧株式会社', '2026-10-19', '訪問', '完了', '', '', '2026-10-01T00:00:00.000Z'],
+    ])
+    add('情報', [
+      ['項目', '値'],
+      ['形式バージョン', 1],
+    ])
+    const back = roundTrip(wb)
+    expect(back.cases[0]).toMatchObject({ id: 'c1', companyName: '旧株式会社', status: 'onhold' })
+    expect(back.weeklyActions[0]).toMatchObject({ caseId: 'c1', content: '訪問', whom: '', status: 'done' })
   })
 
   it('案件シートがないファイルはエラー', () => {
